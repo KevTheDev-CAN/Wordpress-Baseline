@@ -1,0 +1,107 @@
+worker_processes auto;
+worker_rlimit_nofile 30000;
+
+<% unless @no_nogroup %>
+user nobody nogroup; # for systems with a "nogroup"
+<% end %>
+
+pid /tmp/nginx.pid;
+error_log /tmp/nginx.error.log crit;
+
+events {
+  worker_connections 1024; # increase if you have lots of clients
+  accept_mutex on; # "on" if nginx worker_processes > 1
+  use epoll; # enable for Linux 2.6+
+}
+
+http {
+  include mime.types;
+
+  default_type application/octet-stream;
+
+  access_log /tmp/nginx.access.log combined;
+
+  sendfile on;
+
+  tcp_nopush on; # off may be better for *some* Comet/long-poll stuff
+  tcp_nodelay off; # on may be better for some Comet/long-poll stuff
+
+  gzip on;
+  gzip_http_version 1.0;
+  gzip_proxied any;
+  gzip_min_length 500;
+  gzip_disable "MSIE [1-6]\.";
+  gzip_types text/plain text/xml text/css
+             text/comma-separated-values
+             text/javascript application/x-javascript
+             application/atom+xml;
+
+  upstream app_server {
+    <% if @app_server_source -%>
+    server <%= @app_server_source %> fail_timeout=0;
+    <% else %>
+    server <%= "unix://#{@app_root}/shared/sockets/unicorn.sock" %> fail_timeout=0;
+    <% end %>
+  }
+
+  server {
+    # enable one of the following if you're on Linux or FreeBSD
+    listen 80 default deferred; # for Linux
+    # listen 80 default accept_filter=httpready; # for FreeBSD
+    #listen       443 ssl;
+
+    # Comment out these lines in production. Only needed in development.
+    #ssl_certificate        /etc/ca-certificates/localhost.crt;
+    #ssl_certificate_key    /etc/ca-certificates/localhost.key;
+
+    # If you have IPv6, you'll likely want to have two separate listeners.
+    # One on IPv4 only (the default), and another on IPv6 only instead
+    # of a single dual-stack listener.  A dual-stack listener will make
+    # for ugly IPv4 addresses in $remote_addr (e.g ":ffff:10.0.0.1"
+    # instead of just "10.0.0.1") and potentially trigger bugs in
+    # some software.
+    # listen [::]:80 ipv6only=on; # deferred or accept_filter recommended
+
+    client_max_body_size 4G;
+    server_name _;
+    server_tokens off;
+
+    # ~2 seconds is often enough for most folks to parse HTML/CSS and
+    # retrieve needed images/icons/frames, connections are cheap in
+    # nginx so increasing this is generally safe...
+    keepalive_timeout 5;
+
+    root <%= "#{@app_root}/public" %>;
+
+    # path for compiled files
+    location ~ ^/(javascripts|stylesheets|fonts|images)/  {
+      gzip_static on; # to serve pre-gzipped version
+      expires max;
+      add_header Cache-Control public;
+    }
+
+    location / {
+      try_files $uri/index.html $uri.html $uri @app;
+    }
+
+    location @app {
+      <% if @http_auth_protected -%>
+      auth_basic "Restricted";
+      auth_basic_user_file <%= "#{@app_root}/.htpasswd" %>;
+      <% end %>
+      include proxy_params;
+      proxy_pass http://app_server;
+    }
+
+    # Rails error pages
+    error_page 500 502 503 504 /500.html;
+    error_page 503 /503.html;
+
+    location = /500.html {
+      root <%= "#{@app_root}/public" %>;
+    }
+    location = /503.html {
+      root <%= "#{@app_root}/public" %>;
+    }
+  }
+}

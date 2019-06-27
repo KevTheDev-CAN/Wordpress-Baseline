@@ -1,0 +1,19 @@
+header{
+  background:$color-lt;
+}
+
+.header{
+  &__brand{
+    @include remove-link-interaction();
+    display:inline-block;
+    width:100px;
+    margin-right:30px;
+  }
+  &__top{
+    padding-bottom:30px;
+  }
+  .container{
+    display:flex;
+    align-items:center;
+  }
+}

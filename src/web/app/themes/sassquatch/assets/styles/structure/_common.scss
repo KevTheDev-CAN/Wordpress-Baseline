@@ -1,0 +1,12 @@
+body{
+  background:$color-brand-1;
+}
+
+a{
+  color:$color-brand-1;
+  @include link-interaction($color-brand-1, 'true');
+}
+
+i{
+  font-family:$font-icon-family;
+}

@@ -1,0 +1,27 @@
+.form{
+  &--search{
+    width:100%;
+  }
+  &__group{
+    &--inline-submit{
+      position:relative;
+      input{
+        padding-left:45px;
+      }
+      i{
+        position:absolute;
+        left:15px;
+        top:50%;
+        transform:translateY(-50%);
+        pointer-events:none;
+      }
+      .button{
+        margin:0;
+        position:absolute;
+        right:0;
+        top:50%;
+        transform:translateY(-50%);
+      }
+    }
+  }
+}
