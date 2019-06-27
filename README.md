@@ -3,7 +3,7 @@ Baseline project setup for a wordpress site using bedrock https://roots.io/bedro
 
 When starting a new wordpress project download this repository.
 
-Dependences:
+## Dependencies
 
 Virtual Box https://www.virtualbox.org/wiki/Downloads
 
