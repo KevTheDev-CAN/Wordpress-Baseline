@@ -11,8 +11,7 @@ ChefDK https://downloads.chef.io/chefdk
 
 Vagrant https://www.vagrantup.com/
 
-> Requires vbguest plugin ``vagrant plugin install vagrant-vbguest``
-> Requires vagrant-env plugin ``vagrant plugin install vagrant-env``
+> Requires vbguest plugin ``vagrant plugin install vagrant-vbguest`` and vagrant-env plugin ``vagrant plugin install vagrant-env``
 
 NodeJS https://nodejs.org/en/
 
