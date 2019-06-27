@@ -56,5 +56,9 @@ You should now be able to reach your site using the IP address found in your vag
 
 ### Updating your database
 
+Default wordpress Admin credentials are ``admin/admin``
+
+Default database will be imported on first time provisioning, to replace the database:
+
 - Run `vagrant ssh` (this will log you into the virtual box machine)
 - Run `cd /vagrant/ && zcat db.sql.gz | mysql -uroot -proot wordpress`
